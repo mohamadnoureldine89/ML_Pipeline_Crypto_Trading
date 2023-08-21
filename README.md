@@ -17,11 +17,11 @@ This project provides tools for fetching, validating, and analyzing cryptocurren
 ## How to Run
 
 1. In a file named env.txt, save your connection configurations to AWS. It should looks like this:
-DB_ENDPOINT=
-DB_PORT=
-DB_NAME=
-DB_USER=
-DB_PASSWORD=
+   - DB_ENDPOINT=
+   - DB_PORT=
+   - DB_NAME=
+   - DB_USER=
+   - DB_PASSWORD=
 
 2. Set up your venv as per requirements.txt.
 
