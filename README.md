@@ -48,7 +48,12 @@ python main.py
 
 ## Notes
 
-- Make sure to set up and configure your AWS credentials if you're ingesting data to AWS.
+- Make sure to set up and configure your AWS credentials if you're ingesting data to AWS. Save them in a file called `env.txt`. It should look like this:
+DB_ENDPOINT=
+DB_PORT=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
 - The script provides TODO notes, especially around the data ingestion part. Make sure to check and act on them as necessary.
 
 ---

@@ -1,5 +1,3 @@
-from p2_data_validation import merge_data_one_ticker
-import pandas as pd
 from statsmodels.tsa.stattools import adfuller
 from p2_data_validation import merge_data_one_ticker, column_names
 
