@@ -35,8 +35,6 @@ def arima_df_normalized(train, test):
 
     scaler = MinMaxScaler()
 
-    # TODO convert to pandas and insert column names
-
     # train goes with fit_transform
     train_scaled = scaler.fit_transform(train)
 

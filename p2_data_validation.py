@@ -6,7 +6,24 @@ import os
 import seaborn as sns
 from statsmodels.tsa.seasonal import seasonal_decompose
 
+column_names = ['open', 'high', 'low', 'close', 'adjclose', 'volume', 'sa_score1',
+                    'sa_score2', 'sa_score3', 'nasdaq_close', 'nasdaq_volume', 'ftse_close',
+                    'ftse_volume', 'crude_close', 'crude_volume', 'stoxx50e_close',
+                    'stoxx50e_volume', 'golf_close', 'golf_volume', 'nikkei_close',
+                    'nikkei_volume', 'hsi_close', 'hsi_volume']
+def load_env_variables_from_file(file_path):
+    """
+    Load environment variables from a file env.txt and export them as env variables
+    
+    """
+    with open(file_path, 'r') as f:
+        for line in f:
+            key, value = line.strip().split('=', 1)
+            os.environ[key] = value
+
 def fetch_db():
+
+    load_env_variables_from_file('env.txt')
     # Load credentials from environment variables 
     # Make sure to load the write env variables before running the coe
     db_endpoint = os.environ.get("DB_ENDPOINT")
@@ -28,13 +45,6 @@ def fetch_db():
             df_data[table_name] = pd.read_sql(query, connection)
     
     return df_data
-
-# TODO change into better format
-column_names = ['open', 'high', 'low', 'close', 'adjclose', 'volume', 'sa_score1',
-       'sa_score2', 'sa_score3', 'nasdaq_close', 'nasdaq_volume', 'ftse_close',
-       'ftse_volume', 'crude_close', 'crude_volume', 'stoxx50e_close',
-       'stoxx50e_volume', 'golf_close', 'golf_volume', 'nikkei_close',
-       'nikkei_volume', 'hsi_close', 'hsi_volume']
 
 def merge_data_one_ticker(ticker):
     # fetch crypto data for specific ticker
@@ -60,6 +70,11 @@ def merge_data_one_ticker(ticker):
     df_crypto_sa_id['volume'] = pd.to_numeric(df_crypto_sa_id['volume'], errors='coerce')
 
     # Rename columns
+    column_names = ['open', 'high', 'low', 'close', 'adjclose', 'volume', 'sa_score1',
+                    'sa_score2', 'sa_score3', 'nasdaq_close', 'nasdaq_volume', 'ftse_close',
+                    'ftse_volume', 'crude_close', 'crude_volume', 'stoxx50e_close',
+                    'stoxx50e_volume', 'golf_close', 'golf_volume', 'nikkei_close',
+                    'nikkei_volume', 'hsi_close', 'hsi_volume']
     df_crypto_sa_id.columns = column_names
 
     return df_crypto_sa_id

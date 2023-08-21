@@ -7,28 +7,15 @@ from senti_crypt import get_senti_crypt
 import yfinance as yf
 import os
 
-# Make sure to load the write env variables before running the coe
-db_endpoint = os.environ.get("DB_ENDPOINT")
-db_port = os.environ.get("DB_PORT")
-db_name = os.environ.get("DB_NAME")
-db_user = os.environ.get("DB_USER")
-db_password = os.environ.get("DB_PASSWORD")
-
-# Configuration Settings
-DB_CONFIG = {
-    'endpoint': db_endpoint,
-    'port': db_port,
-    'name': db_name,
-    'user': db_user,
-    'password': db_password
-}
-
-MAP_DICT = {
-    "datetime64[ns]": "DATE",
-    "float64": "NUMERIC",
-    "object": "VARCHAR",
-    "int64": "BIGINT"
-}
+def load_env_variables_from_file(file_path):
+    """
+    Load environment variables from a file env.txt and export them as env variables
+    
+    """
+    with open(file_path, 'r') as f:
+        for line in f:
+            key, value = line.strip().split('=', 1)
+            os.environ[key] = value
 
 def get_currencies_symbols(count=5):
     """Retrieve a list of cryptocurrency symbols.
@@ -101,11 +88,36 @@ def upload_data(cursor, df, table_name):
     cursor.copy_expert(sql=sql_statement, file=csv_file)
     csv_file.close()
 
-END_DATE = None
-INDEX_AS_DATE = False
-INTERVAL = "1d"
-
 def ingest_to_aws(nb_currencies, START_DATE):
+
+    END_DATE = None
+    INDEX_AS_DATE = False
+    INTERVAL = "1d"
+
+    MAP_DICT = {
+        "datetime64[ns]": "DATE",
+        "float64": "NUMERIC",
+        "object": "VARCHAR",
+        "int64": "BIGINT"
+    }
+
+    load_env_variables_from_file('env.txt')
+    # Load credentials from environment variables 
+    # Make sure to load the write env variables before running the coe
+    db_endpoint = os.environ.get("DB_ENDPOINT")
+    db_port = os.environ.get("DB_PORT")
+    db_name = os.environ.get("DB_NAME")
+    db_user = os.environ.get("DB_USER")
+    db_password = os.environ.get("DB_PASSWORD")
+
+    # Configuration Settings
+    DB_CONFIG = {
+        'endpoint': db_endpoint,
+        'port': db_port,
+        'name': db_name,
+        'user': db_user,
+        'password': db_password
+    }
     # Establish DB connection
     connection = psycopg2.connect(
         host=DB_CONFIG['endpoint'],
@@ -154,4 +166,6 @@ def ingest_to_aws(nb_currencies, START_DATE):
         print("Connection Error, Please Fix!")
 
 if __name__ == '__main__':
-    ingest_to_aws()
+    nb_currencies = 50
+    START_DATE = "2020-01-01"
+    ingest_to_aws(nb_currencies, START_DATE)
