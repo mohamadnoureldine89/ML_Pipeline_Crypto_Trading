@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from datetime import datetime, timedelta
 
+
 def arima_train(df_train_scaled, forecast_steps=30, arima_order=(2, 0, 1)):
 
     model = ARIMA(df_train_scaled['close'], order=arima_order).fit()

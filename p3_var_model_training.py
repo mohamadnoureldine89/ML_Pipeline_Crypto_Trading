@@ -7,6 +7,7 @@ import pandas as pd
 from p3_var_data_preparation import var_df_filled_nas
 from p2_data_validation import merge_data_one_ticker, column_names
 
+# TODO this needs an overhaul as we don't do the nested loop anymore
 
 def fit_VAR(df, train_end_date, test_start_date, test_end_date, cols, order, start_date, potential_columns=column_names):
     
@@ -92,4 +93,3 @@ if __name__ == "__main__":
     forecast_array_beyond_test_set = forecast_VAR(df, cols, order, start_date, potential_columns=column_names)
     print(forecast_array_beyond_test_set)
 
-# TODO here I get ValueWarning: No frequency information was provided, so inferred frequency D will be used.

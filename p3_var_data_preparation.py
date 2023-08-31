@@ -1,6 +1,8 @@
 from statsmodels.tsa.stattools import adfuller
 from p2_data_validation import merge_data_one_ticker, column_names
 
+# TODO maybe save into log the results of ADF test validation
+
 # ADF Test
 def adf_test(series):
     result = adfuller(series, autolag='AIC')
@@ -24,7 +26,7 @@ def perform_adf_test(df):
     # Test for Stationarity with Augmented Dickey–Fuller (ADF) Test:
     for column in df.columns:
         is_stationary = adf_test(df[column])
-        print(f"{column} is {'stationary' if is_stationary else 'non-stationary'}")
+        # print(f"{column} is {'stationary' if is_stationary else 'non-stationary'}")
 
 # FYI: We don't split the data and normalize here but later during model training
 
