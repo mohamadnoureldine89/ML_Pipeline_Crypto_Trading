@@ -6,11 +6,14 @@ import os
 import seaborn as sns
 from statsmodels.tsa.seasonal import seasonal_decompose
 
+# TODO maybe we want to log the validations in a log file? 
+
 column_names = ['open', 'high', 'low', 'close', 'adjclose', 'volume', 'sa_score1',
                     'sa_score2', 'sa_score3', 'nasdaq_close', 'nasdaq_volume', 'ftse_close',
                     'ftse_volume', 'crude_close', 'crude_volume', 'stoxx50e_close',
                     'stoxx50e_volume', 'gold_close', 'gold_volume', 'nikkei_close',
                     'nikkei_volume', 'hsi_close', 'hsi_volume']
+
 def load_env_variables_from_file(file_path):
     """
     Load environment variables from a file env.txt and export them as env variables
@@ -84,13 +87,9 @@ def validate_data(df):
     print(missing_values)
 
     # Correlation matrix
-    # TODO improve the display of heatmap
     correlation_matrix = df.corr()
     # sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
     # plt.show()
-
-    # TODO add seasonality, percentile analysis
-
 
 if __name__ == "__main__":
     ticker = 'BTC-USD'

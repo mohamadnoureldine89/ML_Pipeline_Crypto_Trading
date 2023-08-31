@@ -25,6 +25,8 @@ This project provides tools for fetching, validating, and analyzing cryptocurren
 
 2. Set up your venv as per requirements.txt.
 
-3. Run p5_ml_all_currencies. Mind the if name == main statement.
+3. Run p5_deployment_forecast_values to create the initial tables as well as the forecast prices for both ARIMA and VAR models.
+
+4. Run p6_deployment_metrics to create the metrics table.
 
 ---

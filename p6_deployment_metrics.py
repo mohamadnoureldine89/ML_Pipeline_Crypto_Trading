@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
 
         print(f"Ticker {ticker} complete")
-    print(metrics_df)
+        
     upload_df(metrics_df, "metrics")
 
 

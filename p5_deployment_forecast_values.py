@@ -76,6 +76,7 @@ if __name__ == "__main__":
 
 
         print(f"Ticker {ticker} complete")
+    
     upload_df(arima_forecast_df, "arima_forecast")
     upload_df(var_forecast_df, "var_forecast")
 
