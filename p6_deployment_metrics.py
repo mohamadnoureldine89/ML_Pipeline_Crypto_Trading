@@ -1,27 +1,19 @@
 from sqlalchemy import create_engine
+import psycopg2
 import pandas as pd
 import os
 from datetime import datetime, timedelta
-from p1_data_ingestion import ingest_to_aws, ticker_table
+from p1_data_ingestion import ingest_to_aws, ticker_table, ticker_selection, load_env_variables_from_file, upload_df
 from p2_data_validation import merge_data_one_ticker, validate_data, column_names
 from p3_arima_data_preparation import arima_df_filled_nas, arima_df_normalized, arima_split_data
 from p3_arima_model_training import arima_train, arima_forecast
 from p3_var_data_preparation import var_df_filled_nas, perform_adf_test
-from p3_var_model_training import fit_VAR
+from p3_var_model_training import fit_VAR, forecast_VAR
 from p4_performance_eval import evaluate_model
+import numpy as np
 
-
-def forecast_crypto_prices(ticker, START_DATE="2020-01-01"):
+def evaluate_model_performance(ticker):
     
-    ###################################
-    # 2. Data validation
-    ###################################
-    # Pull crypto, market and sentiment data from DB and merge it into a single DF
-    df_crypto_sa_id = merge_data_one_ticker(ticker)
-
-    # Validate the data (missing values, correlation heatmap)
-    validate_data(df_crypto_sa_id)
-
     ###################################
     # 3.a ARIMA data preparation
     ###################################
@@ -37,17 +29,11 @@ def forecast_crypto_prices(ticker, START_DATE="2020-01-01"):
     days_forecast = 30
     forecast_arima_test_set = arima_train(df_train_scaled, forecast_steps=len(test['close'].values),
                                           arima_order=arima_order_test)
-    arima_forecast_prices_beyond_test = arima_forecast(df_arima, forecast_steps=days_forecast,
-                                                       arima_order=arima_order_test)
-    # TODO upload arima_forecast_prices_beyond_test to RDS forecast ARIMA
-    # 
 
     ###################################
     # 4.a ARIMA performance evaluation
     ###################################
-    # TODO upload arima metrics for this ticker to the RDS
     arima_metrics = evaluate_model(test['close'].values, forecast_arima_test_set)
-    # print(f"ARIMA - MAE: {mae_arima}, MSE: {mse_arima}, RMSE: {rmse_arima}, MAPE: {mape_arima}%")
 
     ###################################
     # 3.b VAR data preparation
@@ -59,6 +45,7 @@ def forecast_crypto_prices(ticker, START_DATE="2020-01-01"):
     ###################################
     # 3.b VAR model training
     ###################################
+    # TODO update configurations here?
 
     # configure test and train periods
     test_duration = 60  # change for longer/ shorter test periods (days)
@@ -75,29 +62,47 @@ def forecast_crypto_prices(ticker, START_DATE="2020-01-01"):
                                   column_names)
 
     forecast_var_test_set = dict_fit_VAR_output["forecast_test_set"]
-    print(forecast_var_test_set)
 
     ###################################
     # 4.b VAR performance evaluation
     ###################################
     var_test_data = dict_fit_VAR_output["test_data"]
+    var_metrics = evaluate_model(var_test_data['close'].values, forecast_var_test_set)
 
-    mae_var, mse_var, rmse_var, mape_var = evaluate_model(var_test_data['close'].values, forecast_var_test_set['close'])
-    print(f"VAR - MAE: {mae_var}, MSE: {mse_var}, RMSE: {rmse_var}, MAPE: {mape_var}%")
+    return arima_metrics, var_metrics
 
 
 if __name__ == "__main__":
-    START_DATE = "2020-01-01"
-    ticker_table_df = ticker_table()
-    ###################################
-    # 1. Data ingestion - upload to AWS
-    ###################################
-    ingest_to_aws(START_DATE)
 
-    for ticker in ticker_table_df.ticker:
+    metrics = ["mae_arima", "mse_arima", "rmse_arima", "mape_arima", "mae_var", "mse_var", "rmse_var", "mape_var"]
+    # create an empty dataframe for arima and var performance metrics
+    metrics_df = pd.DataFrame({'Metric_name': metrics})
+
+    for ticker, name in zip(ticker_selection['ticker'], ticker_selection['name']):
         print(f"Ticker {ticker} being processed")
-        forecast_crypto_prices(ticker, START_DATE)
+        
+        arima_metrics, var_metrics = evaluate_model_performance(ticker)
+
+        # ARIMA Model
+        mae_arima, mse_arima, rmse_arima, mape_arima = arima_metrics
+
+        # VAR Model
+        mae_var, mse_var, rmse_var, mape_var = var_metrics
+
+        metrics_column = np.array([mae_arima, mse_arima, rmse_arima, mape_arima, mae_var, mse_var, rmse_var, mape_var])
+        metrics_column = pd.DataFrame({f"{name}": metrics_column})
+
+
+        metrics_df = pd.concat([metrics_df, metrics_column], axis=1)
+
+
         print(f"Ticker {ticker} complete")
+    print(metrics_df)
+    upload_df(metrics_df, "metrics")
+
+
+
+
 
 
 
