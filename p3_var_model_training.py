@@ -25,19 +25,46 @@ def fit_VAR(df, train_end_date, test_start_date, test_end_date, cols, order, sta
     model_fit = model.fit(order)
 
     # Forecast using the trained model
-    forecast_array = model_fit.forecast(model_fit.endog, steps=len(test_data))
+    forecast_array_test_set = model_fit.forecast(model_fit.endog, steps=len(test_data))
 
     # Convert the forecast array to a pandas DataFrame
-    forecast_df = pd.DataFrame(forecast_array, columns=potential_columns[:cols], index=test_data.index)
+    forecast_df_test_set = pd.DataFrame(forecast_array_test_set, columns=potential_columns[:cols], index=test_data.index)
+
+    forecast_df_test_set = forecast_df_test_set["close"]
     
     # Replace values less than 0 with 0 (prices can't be negative)
-    forecast_df[forecast_df < 0] = 0
+    forecast_df_test_set[forecast_df_test_set < 0] = 0
 
     return {
         'model_fit': model_fit,
-        'forecast': forecast_df,
+        'forecast_test_set': forecast_df_test_set,
         'test_data': test_data
     }
+
+def forecast_VAR(df, cols, order, start_date, potential_columns=column_names):
+    df.index = pd.to_datetime(df.index)
+
+    # Fit VAR model
+    model = VAR(df[potential_columns[:cols]])
+    model_fit = model.fit(order)
+
+    # Forecast using the trained model
+    forecast_array_beyond_test_set = model_fit.forecast(model_fit.endog, steps=30)
+
+    # Convert the forecast array to a pandas DataFrame
+    forecast_array_beyond_test_set = pd.DataFrame(forecast_array_beyond_test_set, columns=potential_columns[:cols])
+    
+    # Replace values less than 0 with 0 (prices can't be negative)
+    forecast_array_beyond_test_set[forecast_array_beyond_test_set < 0] = 0
+
+    # Array of dates starting from tomorrow
+    dates = pd.date_range(start=datetime.today().date() + timedelta(days=1), periods=30)
+
+    # Convert to DataFrame
+    df = pd.DataFrame({'Date': dates, 'Value': forecast_array_beyond_test_set["close"]})
+
+    return df
+
 
 
 if __name__ == "__main__":
@@ -60,6 +87,9 @@ if __name__ == "__main__":
     dict_fit_VAR_output = fit_VAR(df, train_end_date, test_start_date, test_end_date,
                                   cols, order, start_date, column_names)
 
-    print(dict_fit_VAR_output)
+    print(dict_fit_VAR_output["forecast_test_set"])
+
+    forecast_array_beyond_test_set = forecast_VAR(df, cols, order, start_date, potential_columns=column_names)
+    print(forecast_array_beyond_test_set)
 
 # TODO here I get ValueWarning: No frequency information was provided, so inferred frequency D will be used.

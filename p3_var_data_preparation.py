@@ -15,7 +15,7 @@ def var_df_filled_nas(df):
     df.bfill(inplace=True)
 
     missing_values = df.isnull().sum()
-    print(missing_values)
+    # print(missing_values)
 
     return df
 
