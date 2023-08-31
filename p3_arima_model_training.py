@@ -4,6 +4,7 @@ from p2_data_validation import merge_data_one_ticker
 from p3_arima_data_preparation import arima_df_filled_nas, arima_df_normalized, arima_split_data
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
+from datetime import datetime, timedelta
 
 def arima_train(df_train_scaled, forecast_steps=30, arima_order=(2, 0, 1)):
 
@@ -41,7 +42,13 @@ def arima_forecast(df_arima, forecast_steps=30, arima_order=(2, 0, 1)):
 
     forecast_original = forecast_original_scale.flatten()
 
-    return forecast_original
+    # Array of dates starting from tomorrow
+    dates = pd.date_range(start=datetime.today().date() + timedelta(days=1), periods=30)
+
+    # Convert to DataFrame
+    df = pd.DataFrame({'Date': dates, 'Value': forecast_original})
+
+    return df
 
 if __name__ == '__main__':
     ticker = "BTC-USD"

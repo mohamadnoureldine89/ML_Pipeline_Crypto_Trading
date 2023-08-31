@@ -9,7 +9,7 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 column_names = ['open', 'high', 'low', 'close', 'adjclose', 'volume', 'sa_score1',
                     'sa_score2', 'sa_score3', 'nasdaq_close', 'nasdaq_volume', 'ftse_close',
                     'ftse_volume', 'crude_close', 'crude_volume', 'stoxx50e_close',
-                    'stoxx50e_volume', 'golf_close', 'golf_volume', 'nikkei_close',
+                    'stoxx50e_volume', 'gold_close', 'gold_volume', 'nikkei_close',
                     'nikkei_volume', 'hsi_close', 'hsi_volume']
 def load_env_variables_from_file(file_path):
     """
@@ -70,11 +70,6 @@ def merge_data_one_ticker(ticker):
     df_crypto_sa_id['volume'] = pd.to_numeric(df_crypto_sa_id['volume'], errors='coerce')
 
     # Rename columns
-    column_names = ['open', 'high', 'low', 'close', 'adjclose', 'volume', 'sa_score1',
-                    'sa_score2', 'sa_score3', 'nasdaq_close', 'nasdaq_volume', 'ftse_close',
-                    'ftse_volume', 'crude_close', 'crude_volume', 'stoxx50e_close',
-                    'stoxx50e_volume', 'golf_close', 'golf_volume', 'nikkei_close',
-                    'nikkei_volume', 'hsi_close', 'hsi_volume']
     df_crypto_sa_id.columns = column_names
 
     return df_crypto_sa_id
@@ -91,8 +86,8 @@ def validate_data(df):
     # Correlation matrix
     # TODO improve the display of heatmap
     correlation_matrix = df.corr()
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
-    plt.show()
+    # sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
+    # plt.show()
 
     # TODO add seasonality, percentile analysis
 
